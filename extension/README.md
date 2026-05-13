@@ -4,13 +4,17 @@ pi extension that adds `/offload`, `/reclaim`, `/offload-status`, and `/offload-
 
 ## Install
 
-Symlink (or copy) this directory into `~/.pi/agent/extensions/offload/`:
-
 ```bash
-ln -s "$(pwd)" ~/.pi/agent/extensions/offload
+pi install git:github.com/kacperkwapisz/pi-offload@main
 ```
 
-Then create `~/.pi/agent/offload-config.json`:
+Then run the config wizard inside pi:
+
+```text
+/offload-setup
+```
+
+This writes `~/.pi/agent/offload-config.json`. You can also create it by hand:
 
 ```json
 {
@@ -21,6 +25,16 @@ Then create `~/.pi/agent/offload-config.json`:
 }
 ```
 
+### Local development
+
+If you're hacking on the extension itself, point pi at the working tree:
+
+```bash
+pi install /path/to/pi-offload
+# or for a one-off run:
+pi -e /path/to/pi-offload
+```
+
 Fields:
 
 - `serverUrl` — public HTTPS URL of the pi-offload-server.
@@ -29,6 +43,10 @@ Fields:
 - `kickoffPrompt` (optional) — overrides the default "proceed with the plan above" instruction sent to the remote agent.
 
 ## Commands
+
+### `/offload-setup`
+
+Interactive wizard that prompts for the server URL and bearer token, pings `/health` to verify connectivity, and writes `~/.pi/agent/offload-config.json`. Re-run to update existing config.
 
 ### `/offload`
 

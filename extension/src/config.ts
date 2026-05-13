@@ -31,3 +31,8 @@ export async function readConfig(): Promise<OffloadConfig | null> {
 export function configPath(): string {
   return CONFIG_PATH;
 }
+
+export async function writeConfig(cfg: OffloadConfig): Promise<void> {
+  await fs.mkdir(path.dirname(CONFIG_PATH), { recursive: true });
+  await fs.writeFile(CONFIG_PATH, JSON.stringify(cfg, null, 2) + "\n");
+}

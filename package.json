@@ -1,0 +1,23 @@
+{
+  "name": "pi-offload",
+  "version": "0.1.0",
+  "description": "Offload a running pi coding-agent session to a remote VPS, with iOS Live Activity progress",
+  "keywords": ["pi-package", "pi-extension", "pi-offload", "remote-agent"],
+  "license": "MIT",
+  "author": "Kacper Kwapisz",
+  "homepage": "https://github.com/kacperkwapisz/pi-offload",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kacperkwapisz/pi-offload.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kacperkwapisz/pi-offload/issues"
+  },
+  "type": "module",
+  "pi": {
+    "extensions": ["./extension/src/index.ts"]
+  },
+  "peerDependencies": {
+    "@mariozechner/pi-coding-agent": "*"
+  }
+}

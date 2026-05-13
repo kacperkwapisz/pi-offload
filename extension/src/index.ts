@@ -4,7 +4,7 @@ import path from "node:path";
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { bundlePiConfig, bundleWorkspace, collectApiKeys, extractTarGzTo } from "./bundle.js";
 import { OffloadClient } from "./client.js";
-import { configPath, readConfig } from "./config.js";
+import { configPath, readConfig, writeConfig } from "./config.js";
 import { clearSentinel, writeSentinel } from "./sentinel.js";
 import { clearState, readState, writeState } from "./state.js";
 
@@ -274,6 +274,60 @@ export default function (pi: ExtensionAPI) {
           ? `✅ Reclaimed. Session updated at ${sessionFile}. Restart pi (or /resume) to load it.`
           : `✅ Workspace reclaimed. (No local session file to update.)`,
         "info",
+      );
+    },
+  });
+
+  // -----------------------------------------------------------------------
+  // /offload-setup — interactive config wizard.
+  // -----------------------------------------------------------------------
+  pi.registerCommand("offload-setup", {
+    description: "Configure pi-offload (server URL + bearer token).",
+    handler: async (_args, ctx) => {
+      const existing = await readConfig();
+      const serverUrl = await ctx.ui.input(
+        "pi-offload server URL",
+        existing?.serverUrl ?? "https://pi-offload.yourdomain.com",
+      );
+      if (!serverUrl) return;
+
+      const token = await ctx.ui.input(
+        "OFFLOAD_TOKEN (matches the server's env)",
+        existing?.token ?? "",
+      );
+      if (!token) return;
+
+      // Quick connectivity probe.
+      let healthOk = false;
+      try {
+        const res = await fetch(`${serverUrl.replace(/\/+$/, "")}/health`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        healthOk = res.ok;
+      } catch {
+        /* network error */
+      }
+
+      if (!healthOk) {
+        const cont = await ctx.ui.confirm(
+          "Health check failed",
+          `Could not reach ${serverUrl}/health. Save the config anyway?`,
+        );
+        if (!cont) return;
+      }
+
+      await writeConfig({
+        serverUrl: serverUrl.replace(/\/+$/, ""),
+        token,
+        excludeExtensions: existing?.excludeExtensions ?? [],
+        kickoffPrompt: existing?.kickoffPrompt,
+      });
+
+      ctx.ui.notify(
+        healthOk
+          ? `✅ Config saved to ${configPath()} and server is reachable.`
+          : `⚠️  Config saved to ${configPath()} (server unreachable — fix and retry).`,
+        healthOk ? "info" : "warning",
       );
     },
   });
