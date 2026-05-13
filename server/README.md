@@ -52,7 +52,7 @@ docker run -d \
   --restart unless-stopped \
   --read-only \
   --tmpfs /tmp:size=512m \
-  --tmpfs /home/pi/.npm:size=256m \
+  --tmpfs /home/node/.npm:size=256m \
   -v pi-offload-data:/data \
   --cap-drop ALL \
   --security-opt no-new-privileges \
